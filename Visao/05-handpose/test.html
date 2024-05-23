@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <!-- 3つのライブラリを読み込む -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+</head>
+<body>
+  <div class="container">
+    <video id="input"></video>
+    <canvas id="output" width="600" height="400"></canvas>
+  </div>
+  <button id="start">Iniciar</button>
+  <button id="stop">Parar</button>
+  
+  <script>
+    const video = document.getElementById('input');
+    const canvas = document.getElementById('output');
+    const ctx = canvas.getContext('2d');
+    
+    
+    const config = {
+      locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    };
+    const hands = new Hands(config);
+
+    
+    const camera = new Camera(video, {
+      onFrame: async () => {
+        await hands.send({image: video});
+      },
+      width: 600,
+      height: 400
+    });
+
+    hands.setOptions({
+        maxNumHands: 2,              
+        modelComplexity: 1,          
+        minDetectionConfidence: 0.5, 
+        minTrackingConfidence: 0.5   
+    });
+
+    
+    hands.onResults(results => {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(results.image,0,0,canvas.width,canvas.height);
+      
+      if(results.multiHandLandmarks) {
+        results.multiHandLandmarks.forEach(marks => {
+          console.log(marks);
+          drawConnectors(ctx, marks, HAND_CONNECTIONS, {color: '#0f0'});
+          drawLandmarks(ctx, marks, {color: '#f00'});
+        })
+      }
+    });
+
+    document.getElementById('start').addEventListener('click', () => camera.start());
+    document.getElementById('stop').addEventListener('click', () =>  camera.stop());
+
+  </script>
+</body>
+</html>

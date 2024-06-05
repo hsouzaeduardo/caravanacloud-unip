@@ -26,12 +26,10 @@ def calculate_angle(a, b, c):
 def squat_score(angle):
     if angle > 160:
         return "Pessimo"
-    elif 140 < angle <= 160:
+    elif 140 < angle <= 140:
         return "Ruim"
-    elif 120 < angle <= 140:
-        return "Bom"
     elif 90 < angle <= 120:
-        return "Ótimo"
+        return "Bom"
     else:
         return "Excelente"
 
@@ -71,14 +69,29 @@ while cap.isOpened():
         # Avaliando o agachamento
         evaluation = squat_score(angle)
         
-        # Exibindo o ângulo e a avaliação na imagem com fonte aumentada
+        # Definindo a cor do texto com base na avaliação
+        color = (0, 0, 255)  # Vermelho
+        if evaluation in ["Bom", "Excelente"]:
+            color = (0, 255, 0)  # Verde
+        
+        # Definindo o tamanho da fonte e posição
+        font_scale = 3
+        font_thickness = 6
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        
+        # Calculando a posição central para o texto
+        text_size = cv2.getTextSize(evaluation, font, font_scale, font_thickness)[0]
+        text_x = (image.shape[1] - text_size[0]) // 2
+        text_y = (image.shape[0] + text_size[1]) // 2
+        
+        # Exibindo o ângulo e a avaliação na imagem
         cv2.putText(image, str(angle), 
-                    tuple(np.multiply(knee, [640, 480]).astype(int)), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 255, 255), 6, cv2.LINE_AA
+                    tuple(np.multiply(knee, [image.shape[1], image.shape[0]]).astype(int)), 
+                    font, font_scale, (255, 255, 255), font_thickness, cv2.LINE_AA
                     )
         cv2.putText(image, evaluation, 
-                    (50, 50), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 255), 6, cv2.LINE_AA
+                    (text_x, text_y), 
+                    font, 3, color, 6, cv2.LINE_AA
                     )
         
     except:

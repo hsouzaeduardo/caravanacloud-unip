@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Interface</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;   
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-interface {
+            width: 60%;
+            height: 80%;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-interface">
+            <div id="chat-messages"></div>
+            <form id="chat-form">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Digite sua mensagem" id="message-input">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Enviar</button>
+                    </div>
+                </div>
+            </form>
+            <button id="voice-button" class="btn btn-secondary">Ativar Reconhecimento de Voz</button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Função para enviar a mensagem
+            function sendMessage(message) {
+                // Lógica para enviar a mensagem para a API
+                // Você pode usar o método $.ajax() do jQuery para fazer uma requisição POST para a API
+                // Certifique-se de tratar a resposta da API e exibir a mensagem no chat
+                $.ajax({
+                    url: 'https://f3e47850fc37.ngrok.app/do/' + encodeURIComponent(message),
+                    method: 'GET',
+                    success: function(response) {
+                        // Trate a resposta da API e exiba a mensagem no chat
+                        $('#chat-messages').append('<p>' + response + '</p>');
+                    },
+                    error: function(error) {
+                        // Trate o erro da requisição
+                        console.log(error);
+                    }
+                });
+            }
+
+            // Manipulador de evento para o envio do formulário
+            $('#chat-form').submit(function(event) {
+                event.preventDefault();
+                var message = $('#message-input').val();
+                sendMessage(message);
+                $('#message-input').val('');
+            });
+
+            // Ativar reconhecimento de voz
+            $('#voice-button').click(function() {
+                var recognition = new webkitSpeechRecognition();
+                recognition.lang = 'pt-BR';
+                recognition.start();
+
+                recognition.onresult = function(event) {
+                    var message = event.results[0][0].transcript;
+                    $('#message-input').val(message);
+                    sendMessage(message);
+                    $('#message-input').val('');
+                };
+            });
+        });
+    </script>
+</body>
+</html>
